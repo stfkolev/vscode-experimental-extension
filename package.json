@@ -1,0 +1,172 @@
+{
+	"name": "vscode-mypos",
+	"displayName": "MyPOS",
+	"description": "",
+	"version": "0.0.1",
+	"publisher": "mypos",
+	"author": "Stf Kolev (https://mypos.com)",
+	"engines": {
+		"vscode": "^1.58.0"
+	},
+	"categories": [
+		"Other",
+		"Snippets"
+	],
+	"activationEvents": [
+		"*",
+		"onStartupFinished"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"iconThemes": [
+			{
+				"id": "vs-seti",
+				"label": "%themeLabel%",
+				"path": "./icons/vs-seti-icon-theme.json"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "mypos.recentUpdates.refresh",
+					"when": "view == myposRecentUpdatesView",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "mypos.openSamples",
+					"when": "viewItem == samplesItem"
+				}
+			]
+		},
+		"commands": [
+			{
+				"category": "myPOS",
+				"command": "mypos.recentUpdates.refresh",
+				"title": "Refresh",
+				"icon": {
+					"light": "./resources/light/refresh.svg",
+					"dark": "./resources/dark/refresh.svg"
+				}
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.helloWorld",
+				"title": "Hello World"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.openReportIssue",
+				"title": "Report Issue"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.createSample",
+				"title": "Start with a myPOS Sample"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.openSamples",
+				"title": "Find code samples"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.openPhpSdkDocs",
+				"title": "Open PHP SDK Documentation"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.openJavaSdkDocs",
+				"title": "Open Java SDK Documentation"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.openEmbeddedSdkDocs",
+				"title": "Open Embedded SDK Documentation"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.openApiReference",
+				"title": "Open API Reference"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.openGettingStarted",
+				"title": "Open Getting Started Guide"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.openPayButtonsAndLinks",
+				"title": "Open Pay Buttons And Links"
+			}
+		],
+		"snippets": [
+			{
+				"language": "php",
+				"path": "./src/snippets/php_snippets.json"
+			}
+		],
+		"views": {
+			"mypos": [
+				{
+					"id": "myposRecentUpdatesView",
+					"name": "Recent Updates"
+				},
+				{
+					"id": "myposSamplesView",
+					"name": "Samples"
+				},
+				{
+					"id": "myposQuickLinksView",
+					"name": "Quick Links",
+					"visibility": "collapsed"
+				},
+				{
+					"id": "myposHelpAndFeedbackView",
+					"name": "Help and Feedback"
+				}
+			]
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "mypos",
+					"title": "MyPOS Explorer",
+					"icon": "resources/MyPOS_Logo.svg"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "myposRecentUpdatesView",
+				"contents": "Here are the Github repositories of myPOS and their latest updates. [learn more](https://github.com/developermypos/).\n[Refresh](command:mypos.recentUpdates.refresh)"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.58.0",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.2.2",
+		"@types/node": "14.x",
+		"eslint": "^7.27.0",
+		"@typescript-eslint/eslint-plugin": "^4.26.0",
+		"@typescript-eslint/parser": "^4.26.0",
+		"glob": "^7.1.7",
+		"mocha": "^8.4.0",
+		"typescript": "^4.3.2",
+		"vscode-test": "^1.5.2"
+	},
+	"dependencies": {
+		"axios": "^0.21.1",
+		"moment": "^2.29.1"
+	}
+}

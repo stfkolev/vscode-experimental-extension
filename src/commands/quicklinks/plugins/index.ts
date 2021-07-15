@@ -1,0 +1,9 @@
+export { default as openCloudCartPlugin } from './openCloudCartPlugin';
+export { default as openGombashopPlugin } from './openGombashopPlugin';
+export { default as openMagentoPlugin } from './openMagentoPlugin';
+export { default as openOsCommerceItemPlugin } from './openOsCommerceItemPlugin';
+export { default as openPrestaShopPlugin } from './openPrestaShopPlugin';
+export { default as openWooCommercePlugin } from './openWooCommercePlugin';
+export { default as openOpenCartPlugin } from './openOpenCartPlugin';
+export { default as openXCartPlugin } from './openXCartPlugin';
+export { default as openZenCartPlugin } from './openZenCartPlugin';
