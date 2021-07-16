@@ -45,20 +45,12 @@
 				"category": "myPOS",
 				"command": "mypos.recentUpdates.refresh",
 				"title": "Refresh",
-				"icon": {
-					"light": "./resources/light/refresh.svg",
-					"dark": "./resources/dark/refresh.svg"
-				}
+				"icon": "$(refresh)"
 			},
 			{
 				"category": "myPOS",
 				"command": "mypos.helloWorld",
 				"title": "Hello World"
-			},
-			{
-				"category": "myPOS",
-				"command": "mypos.openReportIssue",
-				"title": "Report Issue"
 			},
 			{
 				"category": "myPOS",
@@ -69,36 +61,6 @@
 				"category": "myPOS",
 				"command": "mypos.openSamples",
 				"title": "Find code samples"
-			},
-			{
-				"category": "myPOS",
-				"command": "mypos.openPhpSdkDocs",
-				"title": "Open PHP SDK Documentation"
-			},
-			{
-				"category": "myPOS",
-				"command": "mypos.openJavaSdkDocs",
-				"title": "Open Java SDK Documentation"
-			},
-			{
-				"category": "myPOS",
-				"command": "mypos.openEmbeddedSdkDocs",
-				"title": "Open Embedded SDK Documentation"
-			},
-			{
-				"category": "myPOS",
-				"command": "mypos.openApiReference",
-				"title": "Open API Reference"
-			},
-			{
-				"category": "myPOS",
-				"command": "mypos.openGettingStarted",
-				"title": "Open Getting Started Guide"
-			},
-			{
-				"category": "myPOS",
-				"command": "mypos.openPayButtonsAndLinks",
-				"title": "Open Pay Buttons And Links"
 			}
 		],
 		"snippets": [
@@ -166,6 +128,8 @@
 		"vscode-test": "^1.5.2"
 	},
 	"dependencies": {
+		"@types/adm-zip": "^0.4.34",
+		"adm-zip": "^0.5.5",
 		"axios": "^0.21.1",
 		"moment": "^2.29.1"
 	}

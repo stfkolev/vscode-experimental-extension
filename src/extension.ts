@@ -4,21 +4,19 @@ import * as vscode from 'vscode';
 
 import * as Providers from './providers';
 import * as Commands from './commands';
-
-import { createTreeView } from './utils';
+import { Samples } from './models/Samples';
+import { createTreeView, getExtensionInfo } from './utils';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "mypos" is now active!');
-
 	const statusBarItem = vscode.window.createStatusBarItem(
-		vscode.StatusBarAlignment.Left,
+		vscode.StatusBarAlignment.Right,
 	);
-	statusBarItem.tooltip = 'Timer';
-	statusBarItem.command = '';
+
+	statusBarItem.tooltip =
+		'You are currently using myPOS Explorer Version 0.0.1';
+	statusBarItem.text = 'myPOS v0.0.1';
 	statusBarItem.show();
 
 	const SamplesProvider = new Providers.MyposSamplesViewProvider();
@@ -32,8 +30,6 @@ export function activate(context: vscode.ExtensionContext) {
 	createTreeView('myposRecentUpdatesView', RecentUpdatesProvider, false);
 	createTreeView('myposHelpAndFeedbackView', HelpAndFeedbackProvider, false);
 
-	console.log(Commands);
-
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
@@ -44,6 +40,12 @@ export function activate(context: vscode.ExtensionContext) {
 			'mypos.openReportIssue',
 			() => {
 				Commands.openReportIssue();
+			},
+		],
+		[
+			'mypos.createMyposSample',
+			() => {
+				Commands.createSample(new Samples());
 			},
 		],
 		[
@@ -60,6 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
 			'mypos.openStoreManagementDocs',
 			() => Commands.quicklinks.openStoreManagementDocs(),
 		],
+		['mypos.openClockDocs', () => Commands.quicklinks.openClockDocs()],
 
 		// Checkout
 		[

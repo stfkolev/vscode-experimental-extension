@@ -3,6 +3,7 @@ import { MyposTreeViewDataProvider } from '../abstract/MyposTreeViewDataProvider
 import { ThemeIcon, window } from 'vscode';
 import axios from 'axios';
 import * as moment from 'moment';
+import { authorizationHeaders } from '../utils';
 
 export class MyposRecentUpdatesViewProvider extends MyposTreeViewDataProvider {
 	refresh(): Thenable<MyposTreeItem[]> {
@@ -14,17 +15,16 @@ export class MyposRecentUpdatesViewProvider extends MyposTreeViewDataProvider {
 	}
 
 	loadItems() {
-		const headers = {
-			Authorization: 'token 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',
-		};
 		return axios
-			.get('https://api.github.com/users/developermypos/repos', { headers })
+			.get('https://api.github.com/users/developermypos/repos', {
+				headers: authorizationHeaders,
+			})
 			.then(async (response) => {
 				const items: any[] = [];
 
 				for (const element of response.data) {
 					const result = await axios.get(element.tags_url, {
-						headers,
+						headers: authorizationHeaders,
 					});
 
 					const repoItem = new MyposTreeItem(`${element.name}`, {

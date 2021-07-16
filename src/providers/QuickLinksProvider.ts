@@ -128,7 +128,7 @@ export class MyposQuickLinksViewProvider extends MyposTreeViewDataProvider {
 		items.push(storeManagementItem);
 
 		const clockItem = new MyposTreeItem('Open Clock Documentation', {
-			commandString: 'openClock',
+			commandString: 'openClockDocs',
 			iconPath: new ThemeIcon('link-external'),
 		});
 

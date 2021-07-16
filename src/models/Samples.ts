@@ -1,7 +1,9 @@
+import axios from 'axios';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as AdmZip from 'adm-zip';
 import { Integration } from './Integration';
-import { SampleData } from './SampleData';
+import { authorizationHeaders } from '../utils';
 
 /**
  * SampleQuickPickItem contains the data for each Sample quick pick item.
@@ -10,16 +12,17 @@ type SampleQuickPickItem = vscode.QuickPickItem & {
 	sampleData: {
 		name: string;
 		url: string;
+		full_name: string;
 	};
 };
 
 /**
- * StripeSamples prompts the user for a Stripe sample and delegates sample creation to the
- * underlying Stripe daemon process.
+ * myPOSSamples prompts the user for a myPOS sample and delegates sample creation to the
+ * underlying myPOS daemon process.
  */
 export class Samples {
 	/**
-	 * Show a menu with a list of Stripe samples, prompt for sample options, clone the sample, and
+	 * Show a menu with a list of myPOS samples, prompt for sample options, clone the sample, and
 	 * prompt to open the sample.
 	 */
 	selectAndCloneSample = async () => {
@@ -34,68 +37,78 @@ export class Samples {
 				return;
 			}
 
-			// const selectedClient = await this.promptClient(selectedIntegration);
-			// if (!selectedClient) {
-			// 	return;
-			// }
+			const selectedClient = await this.promptClient();
+			if (!selectedClient) {
+				return;
+			}
 
-			// const selectedServer = await this.promptServer(selectedIntegration);
-			// if (!selectedServer) {
-			// 	return;
-			// }
+			const clonePath = await this.promptPath(selectedSample);
+			if (!clonePath) {
+				return;
+			}
 
-			// const clonePath = await this.promptPath(selectedSample);
-			// if (!clonePath) {
-			// 	return;
-			// }
+			const result = await axios.get(
+				`${selectedSample.sampleData.url}/zipball/master`,
+				{
+					headers: {
+						authorizationHeaders,
+					},
+					responseType: 'arraybuffer',
+				},
+			);
 
-			// const sampleCreateResponse = await this.createSample(
-			// 	selectedSample.sampleData.name,
-			// 	selectedIntegration.getIntegrationName(),
-			// 	selectedServer,
-			// 	selectedClient,
-			// 	clonePath,
-			// );
+			const zip = new AdmZip(result.data);
+			zip.extractAllTo(clonePath, true);
 
-			// const postInstallMessage = sampleCreateResponse
-			// 	? sampleCreateResponse.getPostInstall()
-			// 	: 'The sample was successfully created, but we could not set the API keys in the .env file. Please set them manually.';
-
-			// await this.promptOpenFolder(postInstallMessage, clonePath);
+			await this.promptOpenFolder(
+				'The sample was successfully created!',
+				clonePath,
+			);
 		} catch (e) {
 			vscode.window.showErrorMessage(
-				`Cannot create Stripe sample: ${e.message}`,
+				`Cannot create myPOS sample: ${e.message}`,
 			);
 		}
 	};
 
 	/**
-	 * Get a list of Stripe Samples items to show in a quick pick menu.
+	 * Get a list of myPOS Samples items to show in a quick pick menu.
 	 */
 	private getQuickPickItems = async () => {
-		const rawSamples = await new Promise<SampleData[]>((resolve, reject) => {});
+		// const rawSamples = await new Promise<SampleData[]>((resolve, reject) => {});
+		const rawSamples = await axios.get(
+			'https://api.github.com/users/mypos-samples/repos',
+			{
+				headers: authorizationHeaders,
+			},
+		);
 
 		// alphabetical order
-		// rawSamples.sort((a, b) => {
-		// 	if (a.getName() < b.getName()) {
-		// 		return -1;
-		// 	}
-		// 	if (a.getName() > b.getName()) {
-		// 		return 1;
-		// 	}
-		// 	return 0;
-		// });
+		rawSamples.data.sort((left: any, right: any) => {
+			if (left.name < right.name) {
+				return -1;
+			}
 
-		const samplesQuickPickItems: SampleQuickPickItem[] = rawSamples.map((s) => {
-			return {
-				label: `$(repo) ${s.getName()}`,
-				detail: 'test',
-				sampleData: {
-					name: s.getName(),
-					url: s.getUrl(),
-				},
-			};
+			if (left.name > right.name) {
+				return 1;
+			}
+
+			return 0;
 		});
+
+		const samplesQuickPickItems: SampleQuickPickItem[] = rawSamples.data.map(
+			(sample: any) => {
+				return {
+					label: `$(repo) ${sample.name}`,
+					detail: `${sample.description}`,
+					sampleData: {
+						name: sample.name,
+						url: sample.url,
+						full_name: sample.full_name,
+					},
+				};
+			},
+		);
 
 		return samplesQuickPickItems;
 	};
@@ -103,9 +116,20 @@ export class Samples {
 	/**
 	 *  Get the available configs for this sample.
 	 */
-	private getConfigsForSample(sampleName: string): Promise<Integration[]> {
-		// const request = new SampleConfigsRequest();
-		// request.setSampleName(sampleName);
+	private async getConfigsForSample(
+		sampleName: string,
+	): Promise<Integration[]> {
+		const result = await axios.get(
+			// `https://api.github.com/repos/stfkolev/fs-ng-flask/languages`,
+			`https://api.github.com/repos/${sampleName}/languages`,
+			{
+				headers: authorizationHeaders,
+			},
+		);
+
+		const integrationLanguage = Object.keys(result.data).reduce((left, right) =>
+			result.data[left] > result.data[right] ? left : right,
+		);
 
 		return new Promise((resolve, reject) => {
 			// this.daemonClient?.sampleConfigs(request, (error, response) => {
@@ -116,7 +140,7 @@ export class Samples {
 			// 	}
 			// });
 
-			resolve([new Integration('PHP')]);
+			resolve([new Integration(integrationLanguage)]);
 		});
 	}
 
@@ -128,6 +152,7 @@ export class Samples {
 			this.getQuickPickItems(),
 			{
 				matchOnDetail: true,
+				title: 'Getting started with myPOS Sample 1/3',
 				placeHolder: 'Select a sample to clone',
 			},
 		);
@@ -142,7 +167,7 @@ export class Samples {
 		sample: SampleQuickPickItem,
 	): Promise<Integration | undefined> => {
 		const integrationsPromise = this.getConfigsForSample(
-			sample.sampleData.name,
+			sample.sampleData.full_name,
 		);
 
 		// Don't resolve the promise now. Instead, pass the promise to showQuickPick.
@@ -156,6 +181,7 @@ export class Samples {
 		const selectedIntegrationName = await vscode.window.showQuickPick(
 			getIntegrationNames(),
 			{
+				title: 'Getting started with myPOS Sample 2/3',
 				placeHolder: 'Select an integration',
 			},
 		);
@@ -177,24 +203,12 @@ export class Samples {
 	/**
 	 * Ask for the sample client language
 	 */
-	// private promptClient = (
-	// 	integration: Integration,
-	// ): Thenable<string | undefined> => {
-	// 	return vscode.window.showQuickPick(integration.getClientsList(), {
-	// 		placeHolder: 'Select a client language',
-	// 	});
-	// };
-
-	/**
-	 * Ask for the sample server language
-	 */
-	// private promptServer = (
-	// 	integration: Integration,
-	// ): Thenable<string | undefined> => {
-	// 	return vscode.window.showQuickPick(integration.getServersList(), {
-	// 		placeHolder: 'Select a server language',
-	// 	});
-	// };
+	private promptClient = (): Thenable<string | undefined> => {
+		return vscode.window.showQuickPick(['Online'], {
+			title: 'Getting started with myPOS Sample 3/3',
+			placeHolder: 'Select Client',
+		});
+	};
 
 	/**
 	 * Ask for where to clone the sample
@@ -230,7 +244,6 @@ export class Samples {
 	// private createSample = (
 	// 	sampleName: string,
 	// 	integrationName: string,
-	// 	server: string,
 	// 	client: string,
 	// 	path: string,
 	// ): Promise<SampleCreateResponse | null> => {
