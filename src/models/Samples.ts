@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as AdmZip from 'adm-zip';
 import { Integration } from './Integration';
-import { authorizationHeaders } from '../utils';
+import { authorizationHeaders, getSampleLanguage } from '../utils';
 
 /**
  * SampleQuickPickItem contains the data for each Sample quick pick item.
@@ -32,10 +32,10 @@ export class Samples {
 				return;
 			}
 
-			const selectedIntegration = await this.promptIntegration(selectedSample);
-			if (!selectedIntegration) {
-				return;
-			}
+			// const selectedIntegration = await this.promptIntegration(selectedSample);
+			// if (!selectedIntegration) {
+			// 	return;
+			// }
 
 			const selectedClient = await this.promptClient();
 			if (!selectedClient) {
@@ -75,7 +75,6 @@ export class Samples {
 	 * Get a list of myPOS Samples items to show in a quick pick menu.
 	 */
 	private getQuickPickItems = async () => {
-		// const rawSamples = await new Promise<SampleData[]>((resolve, reject) => {});
 		const rawSamples = await axios.get(
 			'https://api.github.com/users/mypos-samples/repos',
 			{
@@ -96,18 +95,21 @@ export class Samples {
 			return 0;
 		});
 
-		const samplesQuickPickItems: SampleQuickPickItem[] = rawSamples.data.map(
-			(sample: any) => {
+		const samplesQuickPickItems: SampleQuickPickItem[] = await Promise.all(
+			rawSamples.data.map(async (sample: any) => {
+				const language = await getSampleLanguage(sample.full_name);
+
 				return {
 					label: `$(repo) ${sample.name}`,
-					detail: `${sample.description}`,
+					description: `${sample.description}`,
+					detail: `$(notebook) Language: ${language}`,
 					sampleData: {
 						name: sample.name,
 						url: sample.url,
 						full_name: sample.full_name,
 					},
 				};
-			},
+			}),
 		);
 
 		return samplesQuickPickItems;
@@ -119,17 +121,7 @@ export class Samples {
 	private async getConfigsForSample(
 		sampleName: string,
 	): Promise<Integration[]> {
-		const result = await axios.get(
-			// `https://api.github.com/repos/stfkolev/fs-ng-flask/languages`,
-			`https://api.github.com/repos/${sampleName}/languages`,
-			{
-				headers: authorizationHeaders,
-			},
-		);
-
-		const integrationLanguage = Object.keys(result.data).reduce((left, right) =>
-			result.data[left] > result.data[right] ? left : right,
-		);
+		const integrationLanguage = await getSampleLanguage(sampleName);
 
 		return new Promise((resolve, reject) => {
 			// this.daemonClient?.sampleConfigs(request, (error, response) => {
@@ -152,7 +144,7 @@ export class Samples {
 			this.getQuickPickItems(),
 			{
 				matchOnDetail: true,
-				title: 'Getting started with myPOS Sample 1/3',
+				title: 'Getting started with myPOS Sample 1/2',
 				placeHolder: 'Select a sample to clone',
 			},
 		);
@@ -163,49 +155,49 @@ export class Samples {
 	/**
 	 * Ask for which integration to copy for this sample.
 	 */
-	private promptIntegration = async (
-		sample: SampleQuickPickItem,
-	): Promise<Integration | undefined> => {
-		const integrationsPromise = this.getConfigsForSample(
-			sample.sampleData.full_name,
-		);
+	// private promptIntegration = async (
+	// 	sample: SampleQuickPickItem,
+	// ): Promise<Integration | undefined> => {
+	// 	const integrationsPromise = this.getConfigsForSample(
+	// 		sample.sampleData.full_name,
+	// 	);
 
-		// Don't resolve the promise now. Instead, pass the promise to showQuickPick.
-		// The quick pick will show a progress indicator while the promise is resolving.
-		const getIntegrationNames = async (): Promise<string[]> => {
-			return ((await integrationsPromise) || []).map((i) =>
-				i.getIntegrationName(),
-			);
-		};
+	// 	// Don't resolve the promise now. Instead, pass the promise to showQuickPick.
+	// 	// The quick pick will show a progress indicator while the promise is resolving.
+	// 	const getIntegrationNames = async (): Promise<string[]> => {
+	// 		return ((await integrationsPromise) || []).map((i) =>
+	// 			i.getIntegrationName(),
+	// 		);
+	// 	};
 
-		const selectedIntegrationName = await vscode.window.showQuickPick(
-			getIntegrationNames(),
-			{
-				title: 'Getting started with myPOS Sample 2/3',
-				placeHolder: 'Select an integration',
-			},
-		);
-		if (!selectedIntegrationName) {
-			return;
-		}
+	// 	const selectedIntegrationName = await vscode.window.showQuickPick(
+	// 		getIntegrationNames(),
+	// 		{
+	// 			title: 'Getting started with myPOS Sample 2/3',
+	// 			placeHolder: 'Select an integration',
+	// 		},
+	// 	);
+	// 	if (!selectedIntegrationName) {
+	// 		return;
+	// 	}
 
-		const integrations = await integrationsPromise;
-		if (!integrations) {
-			return undefined;
-		}
+	// 	const integrations = await integrationsPromise;
+	// 	if (!integrations) {
+	// 		return undefined;
+	// 	}
 
-		const selectedIntegration = integrations.find(
-			(i) => i.getIntegrationName() === selectedIntegrationName,
-		);
-		return selectedIntegration;
-	};
+	// 	const selectedIntegration = integrations.find(
+	// 		(i) => i.getIntegrationName() === selectedIntegrationName,
+	// 	);
+	// 	return selectedIntegration;
+	// };
 
 	/**
 	 * Ask for the sample client language
 	 */
 	private promptClient = (): Thenable<string | undefined> => {
 		return vscode.window.showQuickPick(['Online'], {
-			title: 'Getting started with myPOS Sample 3/3',
+			title: 'Getting started with myPOS Sample 2/2',
 			placeHolder: 'Select Client',
 		});
 	};
