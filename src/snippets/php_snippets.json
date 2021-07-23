@@ -1,21 +1,4 @@
 {
-	"IPCPurchase": {
-		"prefix": "IPCPurchase",
-		"body": [
-			"\\$purchase = new \\Mypos\\IPC\\Purchase(\\$cnf);",
-			"",
-			"\\$purchase->setUrlCancel('${1:http://mysite.com/ipc_cancel}');",
-			"\\$purchase->setUrlOk('${2:http://mysite.com/ipc_ok}');",
-			"\\$purchase->setUrlNotify('${3:http://mysite.com/ipc_notify}');",
-			"\\$purchase->setOrderID(uniqid());",
-			"\\$purchase->setCurrency('EUR');",
-			"\\$purchase->setNote('Some note');",
-			"\\$purchase->setCardTokenRequest(\\Mypos\\IPC\\Purchase::CARD_TOKEN_REQUEST_ONLY_STORE);",
-			"\\$purchase->setPaymentParametersRequired(\\Mypos\\IPC\\Purchase::PURCHASE_TYPE_SIMPLIFIED_PAYMENT_PAGE);"
-		],
-		"description": "Creates a sample IPC Purchase Request"
-	},
-
 	"IPCConfig": {
 		"prefix": "IPCConfig",
 		"body": [

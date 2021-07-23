@@ -38,6 +38,13 @@
 					"command": "mypos.openSamples",
 					"when": "viewItem == samplesItem"
 				}
+			],
+			"editor/context": [
+				{
+					"command": "mypos.createSnippet",
+					"group": "navigation@mypos",
+					"when": "editorTextFocus"
+				}
 			]
 		},
 		"commands": [
@@ -46,6 +53,11 @@
 				"command": "mypos.recentUpdates.refresh",
 				"title": "Refresh",
 				"icon": "$(refresh)"
+			},
+			{
+				"category": "myPOS",
+				"command": "mypos.createSnippet",
+				"title": "Create Snippet"
 			},
 			{
 				"category": "myPOS",

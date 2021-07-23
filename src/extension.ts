@@ -5,11 +5,61 @@ import * as vscode from 'vscode';
 import * as Providers from './providers';
 import * as Commands from './commands';
 import { Samples } from './models/Samples';
-import { createTreeView, getExtensionInfo } from './utils';
+import {
+	authorizationHeaders,
+	createTreeView,
+	getExtensionInfo,
+} from './utils';
+import axios from 'axios';
+import { Snippet } from './models/Snippet';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	// https://gist.githubusercontent.com/stefan-kolev-mypos/8820e05c925455a126dbfa624c722d4b/raw/2c1d7c988ed87e0c50a5bf1e812b1b9b8c0c23b8/snippets.json
+	axios
+		.get('https://api.github.com/gists/8820e05c925455a126dbfa624c722d4b', {
+			headers: authorizationHeaders,
+		})
+		.then((result) => {
+			const languages = JSON.parse(result.data.files['snippets.json'].content);
+
+			for (const [key, value] of Object.entries(languages)) {
+				const provider = vscode.languages.registerCompletionItemProvider(key, {
+					provideCompletionItems(
+						document: vscode.TextDocument,
+						position: vscode.Position,
+						token: vscode.CancellationToken,
+						context: vscode.CompletionContext,
+					) {
+						// a completion item that inserts its text as snippet,
+						// the `insertText`-property is a `SnippetString` which will be
+						// honored by the editor.
+						const completionItems = [];
+
+						for (const element of value as Snippet[]) {
+							const snippetCompletion = new vscode.CompletionItem(element.name);
+
+							snippetCompletion.insertText = new vscode.SnippetString(
+								element.snippet,
+							);
+
+							snippetCompletion.documentation = new vscode.MarkdownString(
+								element.help,
+							);
+
+							completionItems.push(snippetCompletion);
+						}
+
+						// // return all completion items as array
+						return completionItems;
+					},
+				});
+
+				context.subscriptions.push(provider);
+			}
+		});
+
 	const statusBarItem = vscode.window.createStatusBarItem(
 		vscode.StatusBarAlignment.Right,
 	);
@@ -35,6 +85,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// The commandId parameter must match the command field in package.json
 	const commandCallbackPairs: [string, (...args: any[]) => any][] = [
 		['mypos.helloWorld', () => Commands.helloWorld()],
+		['mypos.createSnippet', () => Commands.createSnippet()],
 		['mypos.recentUpdates.refresh', () => RecentUpdatesProvider.refresh()],
 		[
 			'mypos.openReportIssue',
