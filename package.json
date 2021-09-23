@@ -75,12 +75,6 @@
 				"title": "Find code samples"
 			}
 		],
-		"snippets": [
-			{
-				"language": "php",
-				"path": "./src/snippets/php_snippets.json"
-			}
-		],
 		"views": {
 			"mypos": [
 				{

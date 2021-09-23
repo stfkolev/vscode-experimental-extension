@@ -12,6 +12,7 @@ import {
 } from './utils';
 import axios from 'axios';
 import { Snippet } from './models/Snippet';
+import { Language } from './models/Language';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -22,39 +23,47 @@ export function activate(context: vscode.ExtensionContext) {
 			headers: authorizationHeaders,
 		})
 		.then((result) => {
-			const languages = JSON.parse(result.data.files['snippets.json'].content);
+			console.log(result);
+			const languages = JSON.parse(
+				result.data.files['snippets.json'].content,
+			) as Language[];
 
-			for (const [key, value] of Object.entries(languages)) {
-				const provider = vscode.languages.registerCompletionItemProvider(key, {
-					provideCompletionItems(
-						document: vscode.TextDocument,
-						position: vscode.Position,
-						token: vscode.CancellationToken,
-						context: vscode.CompletionContext,
-					) {
-						// a completion item that inserts its text as snippet,
-						// the `insertText`-property is a `SnippetString` which will be
-						// honored by the editor.
-						const completionItems = [];
+			for (const elem of languages) {
+				const provider = vscode.languages.registerCompletionItemProvider(
+					elem.name,
+					{
+						provideCompletionItems(
+							document: vscode.TextDocument,
+							position: vscode.Position,
+							token: vscode.CancellationToken,
+							context: vscode.CompletionContext,
+						) {
+							// a completion item that inserts its text as snippet,
+							// the `insertText`-property is a `SnippetString` which will be
+							// honored by the editor.
+							const completionItems = [];
 
-						for (const element of value as Snippet[]) {
-							const snippetCompletion = new vscode.CompletionItem(element.name);
+							for (const element of elem.snippets) {
+								const snippetCompletion = new vscode.CompletionItem(
+									element.name,
+								);
 
-							snippetCompletion.insertText = new vscode.SnippetString(
-								element.snippet,
-							);
+								snippetCompletion.insertText = new vscode.SnippetString(
+									element.snippet,
+								);
 
-							snippetCompletion.documentation = new vscode.MarkdownString(
-								element.help,
-							);
+								snippetCompletion.documentation = new vscode.MarkdownString(
+									element.help,
+								);
 
-							completionItems.push(snippetCompletion);
-						}
+								completionItems.push(snippetCompletion);
+							}
 
-						// // return all completion items as array
-						return completionItems;
+							// // return all completion items as array
+							return completionItems;
+						},
 					},
-				});
+				);
 
 				context.subscriptions.push(provider);
 			}
