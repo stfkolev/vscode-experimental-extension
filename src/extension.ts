@@ -5,13 +5,8 @@ import * as vscode from 'vscode';
 import * as Providers from './providers';
 import * as Commands from './commands';
 import { Samples } from './models/Samples';
-import {
-	authorizationHeaders,
-	createTreeView,
-	getExtensionInfo,
-} from './utils';
+import { authorizationHeaders, createTreeView } from './utils';
 import axios from 'axios';
-import { Snippet } from './models/Snippet';
 import { Language } from './models/Language';
 
 // this method is called when your extension is activated
@@ -77,7 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	statusBarItem.tooltip =
 		'You are currently using myPOS Explorer Version 0.0.1';
-	statusBarItem.text = 'myPOS v0.0.1';
+	statusBarItem.text = 'myPOS v0.0.2';
 	statusBarItem.show();
 
 	const SamplesProvider = new Providers.MyposSamplesViewProvider();
