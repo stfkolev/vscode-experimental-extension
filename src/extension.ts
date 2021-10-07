@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 							for (const element of elem.snippets) {
 								const snippetCompletion = new vscode.CompletionItem(
-									element.name,
+									'myPOS_' + element.name,
 								);
 
 								snippetCompletion.insertText = new vscode.SnippetString(
@@ -55,6 +55,8 @@ export function activate(context: vscode.ExtensionContext) {
 								snippetCompletion.documentation = new vscode.MarkdownString(
 									element.help,
 								);
+
+								snippetCompletion.detail = element.help;
 
 								completionItems.push(snippetCompletion);
 							}
@@ -93,8 +95,6 @@ export function activate(context: vscode.ExtensionContext) {
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	const commandCallbackPairs: [string, (...args: any[]) => any][] = [
-		['mypos.helloWorld', () => Commands.helloWorld()],
-		['mypos.createSnippet', () => Commands.createSnippet()],
 		['mypos.recentUpdates.refresh', () => RecentUpdatesProvider.refresh()],
 		[
 			'mypos.openReportIssue',

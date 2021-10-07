@@ -64,10 +64,8 @@ export class Samples {
 				'The sample was successfully created!',
 				clonePath,
 			);
-		} catch (e) {
-			vscode.window.showErrorMessage(
-				`Cannot create myPOS sample: ${e.message}`,
-			);
+		} catch (error) {
+			vscode.window.showErrorMessage(`Cannot create myPOS sample: ${error}`);
 		}
 	};
 
